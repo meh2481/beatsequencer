@@ -132,6 +132,8 @@ SOUNDS = [
 
 wav_file_obj = None
 
+
+frame_updated = False
 # This will be called when button events are received
 def blink(xcoord, ycoord, edge):
     global effect_start_time
@@ -139,13 +141,14 @@ def blink(xcoord, ycoord, edge):
     global effect_iter
     global audio
     global wav_file_obj
+    global frame_updated
     # Turn the LED to a different color when a rising edge is detected
     if edge == NeoTrellis.EDGE_RISING:
         colors_copy = COLORS.copy()
         colors_copy.remove(pixel_colors[xcoord][ycoord])
         random_color = random.choice(colors_copy)
         trellis.color(xcoord, ycoord, random_color)
-        trellis.show()
+        frame_updated = True
         pixel_colors[xcoord][ycoord] = random_color
         if effect_start_time == 0:
             effect_start_time = time.monotonic()
@@ -175,8 +178,15 @@ for y in range(8):
         trellis.color(x, y, pixel_colors[x][y])
 trellis.show()
 
+print("ready")
+iter = 0
+ITER_FAST_ANIM = 20
+ITER_FAST_SFX = 0
 while True:
-    trellis.sync()
+    if iter > ITER_FAST_ANIM:
+        iter = 0
+        trellis.sync()
+    iter += 1
     if effect_start_time != 0:
         cur_time = time.monotonic()
         if cur_time - effect_start_time > 0:
@@ -187,18 +197,18 @@ while True:
                 effect_origin = (0, 0)
                 effect_iter = 0
             else:
-                updated = False
                 for y in range(8):
                     for x in range(8):
                         dist = max(
                             abs(x - effect_origin[0]), abs(y - effect_origin[1]))
                         if dist == effect_iter:# and (x == effect_origin[0] or y == effect_origin[1]):
                             trellis.color(x, y, WHITE)
-                            updated = True
+                            frame_updated = True
                         elif dist == effect_iter - 1:# and (x == effect_origin[0] or y == effect_origin[1]):
                             trellis.color(x, y,  pixel_colors[x][y])
-                            updated = True
-                if updated:
-                    trellis.show()
+                            frame_updated = True
+    if frame_updated:
+        trellis.show()
+        frame_updated = False
     # The NeoTrellis can only be read every 17 milliseconds or so
-    time.sleep(0.02)
+    # time.sleep(0.02)
