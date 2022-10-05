@@ -142,6 +142,7 @@ kick_timing = 0
 red_pos = 0
 white_pos = 0
 starfield_kick_timing = 0
+stripe_pos = 0
 
 frame_updated = False
 # This will be called when button events are received
@@ -160,6 +161,7 @@ def blink(xcoord, ycoord, edge):
     global red_pos
     global white_pos
     global starfield_kick_timing
+    global stripe_pos
     # Turn the LED to a different color when a rising edge is detected
     if edge == NeoTrellis.EDGE_RISING:
         started_playing_music = time.monotonic()
@@ -170,6 +172,7 @@ def blink(xcoord, ycoord, edge):
         red_pos = 0
         white_pos = 0
         starfield_kick_timing = 0
+        stripe_pos = 0
         audio.play(wav_file)
         trellis.fill(BLUE)
         trellis.show()
@@ -254,15 +257,20 @@ STARFIELD_TIMINGS = [
 STARFIELD_KICK_TIMINGS = [
     (19.81, 20.1),
     (21.011, 21.311),
-    (22.21, 24.01),
+    (22.21, 22.514), #
     (24.61, 24.91),
     (25.81, 26.11),
-    (27.01, 28.81),
+    # (27.01, 28.81), #
     (29.41, 29.71),
     (30.61, 30.91),
-    (31.81, 33.61),
+    (31.81, 32.116), #
     (34.21, 34.51),
     (35.41, 35.71),
+]
+
+STRIPE_TIMINGS = [
+    (22.514, 24.01, 0),
+    (32.116, 33.61, 20),
 ]
 
 KICK_TIMINGS = [
@@ -491,6 +499,40 @@ while True:
             elif starfield_kick_timing >= 4:
                 starfield_kick_timing = 0
                 trellis.fill(BLACK)
+    for timing in STRIPE_TIMINGS:
+        if timing[0] < cur_time < timing[1]:
+            has_timing = True
+            if stripe_pos == timing[2]:
+                trellis.fill(BLACK)
+            elif stripe_pos == timing[2] + 1:
+                for y in range(8):
+                    trellis.color(4, y, OFF_WHITE)
+            elif stripe_pos == timing[2] + 2:
+                for y in range(8):
+                    trellis.color(5, y, RED)
+            elif stripe_pos == timing[2] + 3:
+                for y in range(8):
+                    trellis.color(6, y, PINK)
+            elif stripe_pos == timing[2] + 4:
+                for y in range(8):
+                    trellis.color(7, y, STAR_TEAL)
+            elif stripe_pos > timing[2] + 8 and stripe_pos < timing[2] + 10:
+                trellis.fill(BLACK)
+            elif stripe_pos == timing[2] + 13:
+                for y in range(8):
+                    trellis.color(3, y, OFF_WHITE)
+            elif stripe_pos == timing[2] + 14:
+                for y in range(8):
+                    trellis.color(2, y, RED)
+            elif stripe_pos == timing[2] + 15:
+                for y in range(8):
+                    trellis.color(1, y, PINK)
+            elif stripe_pos == timing[2] + 16:
+                for y in range(8):
+                    trellis.color(0, y, STAR_TEAL)
+            elif stripe_pos == timing[2] + 20:
+                trellis.fill(BLACK)
+            stripe_pos = min(stripe_pos + 1, timing[2] + 20)
     if not has_timing:
         trellis.fill(BLACK)
     trellis.show()
