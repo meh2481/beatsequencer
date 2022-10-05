@@ -5,7 +5,7 @@ import random
 import time
 import board
 import audiocore
-import audiopwmio
+import audiobusio
 import sdcardio
 import storage
 from adafruit_neotrellis.neotrellis import NeoTrellis
@@ -62,8 +62,8 @@ sdcard = sdcardio.SDCard(spi_bus, cs)
 vfs = storage.VfsFat(sdcard)
 storage.mount(vfs, "/sd")
 
-# Setup PWM audio out
-audio = audiopwmio.PWMAudioOut(board.D11)
+# Setup I2S audio out
+audio = audiobusio.I2SOut(bit_clock=board.D24, word_select=board.D25, data=board.A3)
 
 SOUNDS = [
     "/sd/startrek/DS9_BAJPHASR.wav",
