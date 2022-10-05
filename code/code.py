@@ -134,6 +134,10 @@ SOUNDS = [
 wav_file_obj = open('/sd/mtte.wav', 'rb')
 wav_file = audiocore.WaveFile(wav_file_obj)
 started_playing_music = 0
+iter = 0
+starfield_delay = 0
+sync_iter = 0
+kick_timing = 0
 
 
 frame_updated = False
@@ -146,9 +150,17 @@ def blink(xcoord, ycoord, edge):
     global wav_file_obj
     global frame_updated
     global started_playing_music
+    global iter
+    global starfield_delay
+    global sync_iter
+    global kick_timing
     # Turn the LED to a different color when a rising edge is detected
     if edge == NeoTrellis.EDGE_RISING:
         started_playing_music = time.monotonic()
+        iter = 0
+        starfield_delay = 0
+        sync_iter = 0
+        kick_timing = 0
         audio.play(wav_file)
         trellis.fill(BLUE)
         trellis.show()
@@ -230,11 +242,43 @@ STARFIELD_TIMINGS = [
     (131.74, 132.64, OFF_WHITE),
 ]
 
-iter = 0
+KICK_TIMINGS = [
+    (0.0, 0.596, 0),
+    (0.596, 1.196, 4),
+    (1.196, 1.796, 8),
+    (1.796, 2.396, 12),
+    (2.396, 2.996, 16),
+    (2.996, 3.596, 20),
+    (3.596, 4.196, 24),
+    (4.196, 4.796, 28),
+    (4.796, 5.396, 32),
+    (5.396, 5.996, 36),
+    (5.996, 6.596, 40),
+    (6.596, 7.196, 44),
+    (7.196, 7.796, 48),
+    (7.796, 8.396, 52),
+    (8.396, 8.996, 56),
+    (8.996, 9.596, 60),
+    (9.596, 10.196, 64),
+    (10.196, 10.796, 68),
+    (10.796, 11.396, 72),
+    (11.396, 11.996, 76),
+    (11.996, 12.596, 80),
+    (12.596, 13.196, 84),
+    (13.196, 13.796, 88),
+    (13.796, 14.396, 92),
+    (14.396, 14.996, 96),
+    (14.996, 15.596, 100),
+    (15.596, 16.196, 104),
+    (16.196, 16.796, 108),
+    (16.796, 17.096, 112),
+    (17.096, 17.397, 116),
+    (17.397, 17.697, 120),
+    (17.697, 17.997, 124),
+]
+
 ITER_FAST_ANIM = 20
 ITER_FAST_SFX = 0
-starfield_delay = 0
-sync_iter = 0
 while True:
     if iter > ITER_FAST_ANIM:
         iter = 0
@@ -252,6 +296,51 @@ while True:
                 starfield_delay = 0
                 sync_iter = 1 - sync_iter
             starfield_delay += 1
+    for timing in KICK_TIMINGS:
+        if timing[0] < cur_time < timing[1]:
+            has_timing = True
+            if kick_timing == timing[2]:
+                kick_timing = timing[2] + 1
+                trellis.fill(BLACK)
+                trellis.color(3, 3, STAR_TEAL)
+                trellis.color(4, 3, STAR_TEAL)
+                trellis.color(3, 4, STAR_TEAL)
+                trellis.color(4, 4, STAR_TEAL)
+            elif kick_timing == timing[2] + 1:
+                kick_timing = timing[2] + 2
+                trellis.fill(BLACK)
+                trellis.color(3, 2, STAR_TEAL)
+                trellis.color(4, 2, STAR_TEAL)
+                trellis.color(3, 5, STAR_TEAL)
+                trellis.color(4, 5, STAR_TEAL)
+                trellis.color(2, 3, STAR_TEAL)
+                trellis.color(5, 3, STAR_TEAL)
+                trellis.color(2, 4, STAR_TEAL)
+                trellis.color(5, 4, STAR_TEAL)
+            elif kick_timing == timing[2] + 2:
+                kick_timing = timing[2] + 3
+                trellis.fill(BLACK)
+                trellis.color(3, 1, STAR_TEAL)
+                trellis.color(4, 1, STAR_TEAL)
+                trellis.color(3, 6, STAR_TEAL)
+                trellis.color(4, 6, STAR_TEAL)
+                trellis.color(1, 3, STAR_TEAL)
+                trellis.color(6, 3, STAR_TEAL)
+                trellis.color(1, 4, STAR_TEAL)
+                trellis.color(6, 4, STAR_TEAL)
+            elif kick_timing == timing[2] + 3:
+                kick_timing = timing[2] + 4
+                trellis.fill(BLACK)
+                trellis.color(3, 0, STAR_TEAL)
+                trellis.color(4, 0, STAR_TEAL)
+                trellis.color(3, 7, STAR_TEAL)
+                trellis.color(4, 7, STAR_TEAL)
+                trellis.color(0, 3, STAR_TEAL)
+                trellis.color(7, 3, STAR_TEAL)
+                trellis.color(0, 4, STAR_TEAL)
+                trellis.color(7, 4, STAR_TEAL)
+            else:
+                trellis.fill(BLACK)
     if not has_timing:
         trellis.fill(BLACK)
     trellis.show()
