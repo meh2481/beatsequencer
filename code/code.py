@@ -43,6 +43,7 @@ PINK = (255, 0, 128)  # 0xFF0080
 
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
+OFF = BLACK
 
 COLORS = [RED, MAROON, ORANGE, YELLOW, OLIVE,
           GREEN, AQUA, TEAL, BLUE, NAVY, PURPLE, PINK]
@@ -420,18 +421,18 @@ while True:
     for timing in STARFIELD_KICK_TIMINGS:
         if timing[0] < cur_time < timing[1]:
             has_timing = True
-            if starfield_kick_timing == 0 and cur_time < timing[0] + 0.2:
+            if starfield_kick_timing == 0 and cur_time < timing[0] + 0.4:
+                trellis.fill(BLACK)
                 starfield_kick_timing = 1
             elif starfield_kick_timing == 1:
                 starfield_kick_timing = 2
-                trellis.fill(BLACK)
                 trellis.color(3, 3, OFF_WHITE)
                 trellis.color(4, 3, OFF_WHITE)
                 trellis.color(3, 4, OFF_WHITE)
                 trellis.color(4, 4, OFF_WHITE)
             elif starfield_kick_timing == 2:
                 starfield_kick_timing = 3
-                trellis.fill(BLACK)
+                # trellis.fill(BLACK)
                 trellis.color(2, 2, STAR_TEAL)
                 trellis.color(3, 2, STAR_TEAL)
                 trellis.color(4, 2, STAR_TEAL)
@@ -446,7 +447,7 @@ while True:
                 trellis.color(5, 5, STAR_TEAL)
             elif starfield_kick_timing == 3:
                 starfield_kick_timing = 4
-                trellis.fill(BLACK)
+                # trellis.fill(BLACK)
                 trellis.color(1, 1, RED)
                 trellis.color(2, 1, RED)
                 trellis.color(3, 1, RED)
@@ -467,6 +468,26 @@ while True:
                 trellis.color(3, 6, RED)
                 trellis.color(4, 6, RED)
                 trellis.color(5, 6, RED)
+            # elif starfield_kick_timing == 4:
+            #     starfield_kick_timing = 5
+            #     trellis.color(3, 3, BLACK)
+            #     trellis.color(4, 3, BLACK)
+            #     trellis.color(3, 4, BLACK)
+            #     trellis.color(4, 4, BLACK)
+            # elif starfield_kick_timing == 5:
+            #     starfield_kick_timing = 6
+            #     trellis.color(2, 2, BLACK)
+            #     trellis.color(3, 2, BLACK)
+            #     trellis.color(4, 2, BLACK)
+            #     trellis.color(5, 2, BLACK)
+            #     trellis.color(2, 3, BLACK)
+            #     trellis.color(5, 3, BLACK)
+            #     trellis.color(2, 4, BLACK)
+            #     trellis.color(5, 4, BLACK)
+            #     trellis.color(2, 5, BLACK)
+            #     trellis.color(3, 5, BLACK)
+            #     trellis.color(4, 5, BLACK)
+            #     trellis.color(5, 5, BLACK)
             elif starfield_kick_timing >= 4:
                 starfield_kick_timing = 0
                 trellis.fill(BLACK)
