@@ -138,7 +138,9 @@ iter = 0
 starfield_delay = 0
 sync_iter = 0
 kick_timing = 0
-
+red_pos = 0
+white_pos = 0
+starfield_kick_timing = 0
 
 frame_updated = False
 # This will be called when button events are received
@@ -154,6 +156,9 @@ def blink(xcoord, ycoord, edge):
     global starfield_delay
     global sync_iter
     global kick_timing
+    global red_pos
+    global white_pos
+    global starfield_kick_timing
     # Turn the LED to a different color when a rising edge is detected
     if edge == NeoTrellis.EDGE_RISING:
         started_playing_music = time.monotonic()
@@ -161,6 +166,9 @@ def blink(xcoord, ycoord, edge):
         starfield_delay = 0
         sync_iter = 0
         kick_timing = 0
+        red_pos = 0
+        white_pos = 0
+        starfield_kick_timing = 0
         audio.play(wav_file)
         trellis.fill(BLUE)
         trellis.show()
@@ -242,6 +250,20 @@ STARFIELD_TIMINGS = [
     (131.74, 132.64, OFF_WHITE),
 ]
 
+STARFIELD_KICK_TIMINGS = [
+    (19.81, 20.1),
+    (21.011, 21.311),
+    (22.21, 24.01),
+    (24.61, 24.91),
+    (25.81, 26.11),
+    (27.01, 28.81),
+    (29.41, 29.71),
+    (30.61, 30.91),
+    (31.81, 33.61),
+    (34.21, 34.51),
+    (35.41, 35.71),
+]
+
 KICK_TIMINGS = [
     (0.0, 0.596, 0),
     (0.596, 1.196, 4),
@@ -275,6 +297,14 @@ KICK_TIMINGS = [
     (17.096, 17.397, 116),
     (17.397, 17.697, 120),
     (17.697, 17.997, 124),
+]
+
+RED_SPINWHEEL_TIMINGS = [
+    (17.997, 18.597)
+]
+
+WHITE_WIPE_TIMINGS = [
+    (18.597, 19.08)
 ]
 
 ITER_FAST_ANIM = 20
@@ -341,10 +371,109 @@ while True:
                 trellis.color(7, 4, STAR_TEAL)
             else:
                 trellis.fill(BLACK)
+    for timing in RED_SPINWHEEL_TIMINGS:
+        if timing[0] < cur_time < timing[1]:
+            has_timing = True
+            trellis.fill(BLACK)
+            trellis.color(8 - red_pos - 1, 0, RED)
+            trellis.color(0, red_pos, RED)
+            trellis.color(red_pos, 7, RED)
+            trellis.color(7, 8 - red_pos - 1, RED)
+            red_pos = (red_pos + 1) % 8
+    for timing in WHITE_WIPE_TIMINGS:
+        if timing[0] < cur_time < timing[1]:
+            has_timing = True
+            if white_pos == 0:
+                trellis.fill(BLACK)
+                for x in range(8):
+                    trellis.color(x, 0, OFF_WHITE)
+                    trellis.color(x, 7, OFF_WHITE)
+            elif white_pos == 1:
+                for x in range(8):
+                    trellis.color(x, 1, OFF_WHITE)
+                    trellis.color(x, 6, OFF_WHITE)
+            elif white_pos == 2:
+                for x in range(8):
+                    trellis.color(x, 2, OFF_WHITE)
+                    trellis.color(x, 5, OFF_WHITE)
+            elif white_pos == 3:
+                for x in range(8):
+                    trellis.color(x, 3, OFF_WHITE)
+                    trellis.color(x, 4, OFF_WHITE)
+            elif white_pos == 4:
+                for x in range(8):
+                    trellis.color(x, 0, BLACK)
+                    trellis.color(x, 7, BLACK)
+            elif white_pos == 5:
+                for x in range(8):
+                    trellis.color(x, 1, BLACK)
+                    trellis.color(x, 6, BLACK)
+            elif white_pos == 6:
+                for x in range(8):
+                    trellis.color(x, 2, BLACK)
+                    trellis.color(x, 5, BLACK)
+            elif white_pos == 7:
+                for x in range(8):
+                    trellis.color(x, 3, BLACK)
+                    trellis.color(x, 4, BLACK)
+            white_pos = white_pos + 1
+    for timing in STARFIELD_KICK_TIMINGS:
+        if timing[0] < cur_time < timing[1]:
+            has_timing = True
+            if starfield_kick_timing == 0 and cur_time < timing[0] + 0.2:
+                starfield_kick_timing = 1
+            elif starfield_kick_timing == 1:
+                starfield_kick_timing = 2
+                trellis.fill(BLACK)
+                trellis.color(3, 3, OFF_WHITE)
+                trellis.color(4, 3, OFF_WHITE)
+                trellis.color(3, 4, OFF_WHITE)
+                trellis.color(4, 4, OFF_WHITE)
+            elif starfield_kick_timing == 2:
+                starfield_kick_timing = 3
+                trellis.fill(BLACK)
+                trellis.color(2, 2, STAR_TEAL)
+                trellis.color(3, 2, STAR_TEAL)
+                trellis.color(4, 2, STAR_TEAL)
+                trellis.color(5, 2, STAR_TEAL)
+                trellis.color(2, 3, STAR_TEAL)
+                trellis.color(5, 3, STAR_TEAL)
+                trellis.color(2, 4, STAR_TEAL)
+                trellis.color(5, 4, STAR_TEAL)
+                trellis.color(2, 5, STAR_TEAL)
+                trellis.color(3, 5, STAR_TEAL)
+                trellis.color(4, 5, STAR_TEAL)
+                trellis.color(5, 5, STAR_TEAL)
+            elif starfield_kick_timing == 3:
+                starfield_kick_timing = 4
+                trellis.fill(BLACK)
+                trellis.color(1, 1, RED)
+                trellis.color(2, 1, RED)
+                trellis.color(3, 1, RED)
+                trellis.color(4, 1, RED)
+                trellis.color(5, 1, RED)
+                trellis.color(6, 1, RED)
+                trellis.color(1, 2, RED)
+                trellis.color(6, 2, RED)
+                trellis.color(1, 3, RED)
+                trellis.color(6, 3, RED)
+                trellis.color(1, 4, RED)
+                trellis.color(6, 4, RED)
+                trellis.color(1, 5, RED)
+                trellis.color(6, 5, RED)
+                trellis.color(1, 6, RED)
+                trellis.color(6, 6, RED)
+                trellis.color(2, 6, RED)
+                trellis.color(3, 6, RED)
+                trellis.color(4, 6, RED)
+                trellis.color(5, 6, RED)
+            elif starfield_kick_timing >= 4:
+                starfield_kick_timing = 0
+                trellis.fill(BLACK)
     if not has_timing:
         trellis.fill(BLACK)
     trellis.show()
-    time.sleep(0.02)
+    time.sleep(0.012)
 
 # while True:
 #     if effect_start_time != 0:
