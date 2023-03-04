@@ -48,9 +48,12 @@ class StarTrek():
         ]
         # Only pick the first 32 files
         self.audio_files = self.audio_files[:32]
-        buttons._callback = self
         # Initialize each LED to a random color
         self.pixel_colors = [[random.choice(COLORS) for _ in range(8)] for _ in range(4)]
+        self.init()
+    
+    def init(self):
+        self.buttons.set_callback(self)
         for x in range(8):
             for y in range(4):
                 self.buttons.set_neopixel(x, y, self.pixel_colors[y][x])

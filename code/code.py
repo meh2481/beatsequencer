@@ -42,9 +42,6 @@ accelerometer = mc3416.MC3416(i2c_accel)
 # The SD card
 SDCard(SD_PATH)
 
-# Load wav file
-# wav_file = open(f"{SD_PATH}/PINBALL.wav", "rb")
-
 # Init i2s audio
 i2s = audiobusio.I2SOut(board.GP7, board.GP8, board.GP6)
 
@@ -53,10 +50,6 @@ uart = busio.UART(board.GP16, board.GP17, baudrate=115200)
 
 # Init buttons
 buttons = Buttons()
-
-# Play wav file
-# audio = audiocore.WaveFile(wav_file)
-# i2s.play(audio)
 
 DISPLAY_UPDATE_INTERVAL = 30
 display_update_counter = 0
@@ -68,6 +61,14 @@ snake = Snake(buttons, accelerometer)
 
 # Init startrek
 startrek = StarTrek(i2s, f'{SD_PATH}/startrek', buttons)
+
+def mode_init(mode):
+    global snake, startrek
+    buttons.set_callback(None)
+    if mode == MODE_SNAKE:
+        snake.init()
+    elif mode == MODE_SFX:
+        startrek.init()
 
 # Loop forever
 while True:
@@ -86,7 +87,6 @@ while True:
             display.text_area2.text = f"X: {-y_accel}\nY: {x_accel}\nZ: {z_accel}"
             display_update_counter = 0
         time.sleep(0.005)
-        # i2s.play(audio)
     elif cur_mode == MODE_SNAKE:
         snake.update()
     elif cur_mode == MODE_SFX:
@@ -94,5 +94,8 @@ while True:
     
     # Switch modes if top left button is pressed
     if buttons.get_button_rose(5, 4):
+        display.clear()
         cur_mode = (cur_mode + 1) % len(MODES)
         display.text_area.text = f"Mode: {MODE_NAMES[cur_mode]}"
+        # Init mode
+        mode_init(cur_mode)

@@ -37,3 +37,7 @@ class Display:
             terminalio.FONT, text=text2, scale=2, color=0xFFFFFF, x=0, y=24
         )
         self.splash.append(self.text_area2)
+    
+    def clear(self):
+        self.text_area.text = ""
+        self.text_area2.text = ""

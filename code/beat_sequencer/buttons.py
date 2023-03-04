@@ -94,11 +94,11 @@ class Buttons:
         for y_idx, y in enumerate(self.DEBOUNCED_BUTTONS):
             for x_idx, x in enumerate(y):
                 if x.rose:
-                    print("Button pressed: " + str(x_idx) + ", " + str(y_idx))
+                    # print("Button pressed: " + str(x_idx) + ", " + str(y_idx))
                     if self._callback:
                         self._callback.button_pressed(x_idx, y_idx)
                 elif x.fell:
-                    print("Button released: " + str(x_idx) + ", " + str(y_idx))
+                    # print("Button released: " + str(x_idx) + ", " + str(y_idx))
                     if self._callback:
                         self._callback.button_released(x_idx, y_idx)
 
@@ -111,12 +111,15 @@ class Buttons:
 
     def show_board_neopixel(self):
         self.board_neopixel.show()
-    
+
     def get_button_state(self, x, y):
         return self.DEBOUNCED_BUTTONS[y][x].value
-    
+
     def get_button_rose(self, x, y):
         return self.DEBOUNCED_BUTTONS[y][x].rose
-    
+
     def get_button_fell(self, x, y):
         return self.DEBOUNCED_BUTTONS[y][x].fell
+
+    def set_callback(self, callback):
+        self._callback = callback
