@@ -133,3 +133,4 @@ dmypy.json
 .metadata_never_index
 boot_out.txt
 *.FCStd1
+*.wav

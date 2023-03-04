@@ -60,7 +60,8 @@ class BeatSequencer():
     def update(self):
         cur_time = time.monotonic()
         if cur_time - self.last_time > 60 / self.tempo:
-            self.last_time = cur_time
+            time_skew = (cur_time - self.last_time) - 60 / self.tempo
+            self.last_time = cur_time - time_skew
             self.step += 1
             self.step %= 8
             for y in range(4):
