@@ -109,7 +109,6 @@ class Buttons:
     def set_neopixel_top(self, x, col):
         self.board_neopixel_top[x] = col
 
-
     def fill_neopixel(self, col):
         self.board_neopixel.fill(col)
 

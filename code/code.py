@@ -4,6 +4,8 @@ from beat_sequencer.buttons import Buttons
 from beat_sequencer.sd_card import SDCard
 from beat_sequencer.display import Display
 from beat_sequencer.test import Test
+from beat_sequencer.beat_sequencer import BeatSequencer
+from beat_sequencer.sync_sequencer import SyncSequencer
 import mc3416
 import time
 import audiocore
@@ -12,6 +14,8 @@ import busio
 import digitalio
 import board
 PLAYER_NAME = "Maxwell"
+PLAYER_NAMES = ["Maxwell", "Roselynn"]
+OTHER_PLAYER_NAME = PLAYER_NAMES[0] if PLAYER_NAME == PLAYER_NAMES[1] else PLAYER_NAMES[1]
 
 
 # Constants
@@ -31,7 +35,7 @@ MODE_NAMES = [
 ]
 MODE_SUB_NAMES = [
     'Play a beat',
-    'Play a beat with sync',
+    f'Play a beat together with {OTHER_PLAYER_NAME}',
     "Press a button to play a sound effect",
     "Tilt the board to move the snake and get the fruit!",
     'Test'
@@ -67,13 +71,19 @@ uart = busio.UART(board.GP16, board.GP17, baudrate=115200)
 buttons = Buttons()
 
 # Init snake
-snake = Snake(buttons, accelerometer)
+snake = Snake(buttons, accelerometer, i2s, f'{SD_PATH}/snake')
 
 # Init startrek
 startrek = StarTrek(i2s, f'{SD_PATH}/startrek', buttons)
 
+# Init test
 test = Test(buttons, display, accelerometer)
 
+# Init beat sequencer
+beat_sequencer = BeatSequencer(i2s, f'{SD_PATH}/sequencer', buttons)
+
+# Init sync sequencer
+sync_sequencer = SyncSequencer(i2s, f'{SD_PATH}/sequencer', buttons, uart)
 
 def mode_init(mode):
     global snake, startrek, display, cur_mode, mode_time
@@ -91,6 +101,8 @@ def mode_init(mode):
         startrek.init()
     elif mode == MODE_TEST:
         test.init()
+    elif mode == MODE_BEAT_SEQUENCER:
+        beat_sequencer.init()
 
 
 # Set up our mode
@@ -107,6 +119,8 @@ while True:
         snake.update()
     elif cur_mode == MODE_SFX:
         startrek.update()
+    elif cur_mode == MODE_BEAT_SEQUENCER:
+        beat_sequencer.update()
     elif cur_mode == MODE_STARTUP:
         if time.monotonic() - mode_time > STARTUP_TIME:
             cur_mode = MODE_SFX

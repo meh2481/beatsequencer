@@ -15,12 +15,10 @@ class Test:
         self.buttons.set_callback(self)
 
     def button_pressed(self, x, y):
-        print(f"Button pressed: {x}, {y}")
         self.buttons.set_neopixel(x, y, (255, 0, 0))
         self.buttons.show_board_neopixel()
 
     def button_released(self, x, y):
-        print(f"Button released: {x}, {y}")
         self.buttons.set_neopixel(x, y, (0, 0, 255))
         self.buttons.show_board_neopixel()
 
