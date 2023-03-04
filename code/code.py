@@ -3,6 +3,7 @@ from beat_sequencer.snake import Snake
 from beat_sequencer.buttons import Buttons
 from beat_sequencer.sd_card import SDCard
 from beat_sequencer.display import Display
+from beat_sequencer.test import Test
 import mc3416
 import time
 import audiocore
@@ -65,14 +66,13 @@ uart = busio.UART(board.GP16, board.GP17, baudrate=115200)
 # Init buttons
 buttons = Buttons()
 
-DISPLAY_UPDATE_INTERVAL = 30
-display_update_counter = 0
-
 # Init snake
 snake = Snake(buttons, accelerometer)
 
 # Init startrek
 startrek = StarTrek(i2s, f'{SD_PATH}/startrek', buttons)
+
+test = Test(buttons, display, accelerometer)
 
 
 def mode_init(mode):
@@ -89,6 +89,8 @@ def mode_init(mode):
         snake.init()
     elif mode == MODE_SFX:
         startrek.init()
+    elif mode == MODE_TEST:
+        test.init()
 
 
 # Set up our mode
@@ -100,17 +102,7 @@ while True:
     buttons.update()
 
     if cur_mode == MODE_TEST:
-        # while i2s.playing:
-
-        # Display current accelerometer values
-        x_accel, y_accel, z_accel = accelerometer.acceleration
-        display_update_counter += 1
-        if display_update_counter >= DISPLAY_UPDATE_INTERVAL:
-            # X is inverted y, Y is x, for our orientation on the PCB
-            # +X right, +Y is up
-            display.set_sub_text(f"X: {-y_accel}\nY: {x_accel}\nZ: {z_accel}", False)
-            display_update_counter = 0
-        time.sleep(0.005)
+        test.update()
     elif cur_mode == MODE_SNAKE:
         snake.update()
     elif cur_mode == MODE_SFX:
@@ -126,3 +118,8 @@ while True:
     if buttons.get_button_rose(5, 4):
         # Init mode
         mode_init((cur_mode + 1) % len(MODES))
+        buttons.set_neopixel_top(1, (255, 255, 0))
+        buttons.show_board_neopixel_top()
+    elif buttons.get_button_fell(5, 4):
+        buttons.set_neopixel_top(1, (0, 255, 0))
+        buttons.show_board_neopixel_top()

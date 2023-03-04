@@ -14,7 +14,6 @@ class Snake():
     def __init__(self, buttons, accelerometer):
         self._buttons = buttons
         self._accelerometer = accelerometer
-        self.init()
 
     def init(self):
         self.board = [
@@ -37,7 +36,7 @@ class Snake():
             if self.board[y][x] == 0 and (x, y) not in self.snake:
                 self.board[y][x] = 2
                 return (x, y)
-    
+
     def update(self):
         # Wait until it's time to move
         cur_time = time.monotonic()
@@ -53,7 +52,7 @@ class Snake():
         # If board is flat/no input, move in last direction
         if vector_length < MIN_MOVE_ACCEL:
             vector_angle = self.last_direction
-        
+
         # If vector is mostly right, move right
         if vector_angle > math.pi / 4 and vector_angle < 3 * math.pi / 4:
             self.snake.insert(0, (self.snake[0][0] - 1, self.snake[0][1]))
@@ -69,22 +68,22 @@ class Snake():
 
         # Store last direction
         self.last_direction = vector_angle
-        
+
         # Check for fruit
         if self.snake[0] == self.fruit:
             self.fruit = self.gen_random_fruit()
         else:
             self.snake.pop()
-        
+
         # Check for win condition
         if len(self.snake) == 32:
             # TODO: Win
             self.game_over()
-        
+
         # Check for collision
         if self.snake[0][0] > 7 or self.snake[0][1] > 3 or self.snake[0][0] < 0 or self.snake[0][1] < 0:
             self.game_over()
-        
+
         # Check for self collision
         if self.snake[0] in self.snake[1:]:
             self.game_over()
@@ -94,7 +93,7 @@ class Snake():
 
         # Moves happen faster as the game progresses
         self.next_move_time = cur_time + DEFAULT_MOVE_TIME -  len(self.snake) * 0.01
-    
+
     def game_over(self):
         self.snake = [(0,0)]
         self.board = [

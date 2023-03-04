@@ -50,8 +50,7 @@ class StarTrek():
         self.audio_files = self.audio_files[:32]
         # Initialize each LED to a random color
         self.pixel_colors = [[random.choice(COLORS) for _ in range(8)] for _ in range(4)]
-        self.init()
-    
+
     def init(self):
         self.buttons.set_callback(self)
         for x in range(8):
@@ -61,7 +60,7 @@ class StarTrek():
         # self.effect_origin = (0, 0)
         # self.effect_start_time = 0
         # self.effect_iter = 0
-    
+
     def play_sound(self, path):
         if self.i2s.playing:
             self.i2s.stop()
@@ -71,7 +70,7 @@ class StarTrek():
 
     def update(self):
         time.sleep(0.005)
-    
+
     def button_pressed(self, x, y):
         cur_file = y * 8 + x
         if cur_file >= len(self.audio_files) or cur_file < 0:
@@ -86,6 +85,6 @@ class StarTrek():
         self.pixel_colors[ycoord][xcoord] = random_color
         self.buttons.set_neopixel(xcoord, ycoord, random_color)
         self.buttons.show_board_neopixel()
-    
+
     def button_released(self, x, y):
         pass

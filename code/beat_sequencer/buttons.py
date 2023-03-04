@@ -16,8 +16,8 @@ class Buttons:
         neopixel_brightness = 0.05
         neopixel_auto_write = False
         self.board_neopixel = neopixel.NeoPixel(neopixel_pin, neopixel_count, brightness=neopixel_brightness, auto_write=neopixel_auto_write)
-        # self.board_neopixel.fill((0, 0, 255))
-        # self.board_neopixel.show()
+        self.board_neopixel.fill((0, 0, 0))
+        self.board_neopixel.show()
 
         # The board's top neopixel strand
         neopixel_pin2 = board.GP25
@@ -93,12 +93,10 @@ class Buttons:
         for y_idx, y in enumerate(self.DEBOUNCED_BUTTONS):
             for x_idx, x in enumerate(y):
                 if x.rose:
-                    # print("Button pressed: " + str(x_idx) + ", " + str(y_idx))
-                    if self._callback:
+                    if self._callback and y_idx < 4:
                         self._callback.button_pressed(x_idx, y_idx)
                 elif x.fell:
-                    # print("Button released: " + str(x_idx) + ", " + str(y_idx))
-                    if self._callback:
+                    if self._callback and y_idx < 4:
                         self._callback.button_released(x_idx, y_idx)
 
     def set_neopixel(self, x, y, col):
@@ -108,8 +106,18 @@ class Buttons:
         else:
             self.board_neopixel[y*8 + x] = col
 
+    def set_neopixel_top(self, x, col):
+        self.board_neopixel_top[x] = col
+
+
+    def fill_neopixel(self, col):
+        self.board_neopixel.fill(col)
+
     def show_board_neopixel(self):
         self.board_neopixel.show()
+
+    def show_board_neopixel_top(self):
+        self.board_neopixel_top.show()
 
     def get_button_state(self, x, y):
         return self.DEBOUNCED_BUTTONS[y][x].value
