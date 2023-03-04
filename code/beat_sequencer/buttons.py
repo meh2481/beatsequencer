@@ -15,10 +15,9 @@ class Buttons:
         neopixel_count = 32
         neopixel_brightness = 0.05
         neopixel_auto_write = False
-        self.board_neopixel = neopixel.NeoPixel(
-            neopixel_pin, neopixel_count, brightness=neopixel_brightness, auto_write=neopixel_auto_write)
-        self.board_neopixel.fill((0, 0, 255))
-        self.board_neopixel.show()
+        self.board_neopixel = neopixel.NeoPixel(neopixel_pin, neopixel_count, brightness=neopixel_brightness, auto_write=neopixel_auto_write)
+        # self.board_neopixel.fill((0, 0, 255))
+        # self.board_neopixel.show()
 
         # The board's top neopixel strand
         neopixel_pin2 = board.GP25

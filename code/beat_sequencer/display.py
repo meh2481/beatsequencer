@@ -10,6 +10,7 @@ displayio.release_displays()
 
 WIDTH = 128
 HEIGHT = 64
+LINE_LENGTH = 21
 
 class Display:
     def __init__(self, player_name):
@@ -37,7 +38,32 @@ class Display:
             terminalio.FONT, text=text2, scale=2, color=0xFFFFFF, x=0, y=24
         )
         self.splash.append(self.text_area2)
-    
+
     def clear(self):
+        self.text_area2.y = 21
+        self.text_area2.scale = 1
         self.text_area.text = ""
         self.text_area2.text = ""
+
+    def set_main_text(self, text):
+        self.text_area.text = text
+
+    def set_sub_text(self, text, word_wrap=True):
+        self.text_area2.text = self.word_wrap(text, LINE_LENGTH) if word_wrap else text
+
+    def word_wrap(self, text, width):
+        # Split words on spaces, reset on newline
+        words = text.split(' ')
+        lines = []
+        line = ''
+        for word in words:
+            if word == '\n':
+                lines.append(line)
+                line = ''
+            elif len(line) + len(word) + 1 > width:
+                lines.append(line)
+                line = word
+            else:
+                line += ' ' + word
+        lines.append(line)
+        return '\n'.join(lines)[1:]
