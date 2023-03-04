@@ -80,10 +80,10 @@ startrek = StarTrek(i2s, f'{SD_PATH}/startrek', buttons)
 test = Test(buttons, display, accelerometer)
 
 # Init beat sequencer
-beat_sequencer = BeatSequencer(i2s, f'{SD_PATH}/sequencer', buttons)
+beat_sequencer = BeatSequencer(i2s, f'/sequencer', buttons)
 
 # Init sync sequencer
-sync_sequencer = SyncSequencer(i2s, f'{SD_PATH}/sequencer', buttons, uart)
+sync_sequencer = SyncSequencer(i2s, f'/sequencer', buttons, uart)
 
 def mode_init(mode):
     global snake, startrek, display, cur_mode, mode_time

@@ -16,16 +16,15 @@ MAX_TEMPO = 240
 
 
 class BeatSequencer():
-    def __init__(self, i2s, sd_path, buttons):
+    def __init__(self, i2s, path, buttons):
         self.i2s = i2s
-        self.sd_path = sd_path
         self.buttons = buttons
         self.audio_files = [
             [
-                f'{self.sd_path}/{patch_dir}/{file}'
-                for file in os.listdir(f'{self.sd_path}/{patch_dir}')
+                f'{path}/{patch_dir}/{file}'
+                for file in os.listdir(f'{path}/{patch_dir}')
             ]
-            for patch_dir in os.listdir(self.sd_path)
+            for patch_dir in os.listdir(path)
         ]
         self.samples = [
             [audiocore.WaveFile(file) for file in patch]
@@ -73,6 +72,8 @@ class BeatSequencer():
         self.buttons.set_callback(self)
         self.last_time = time.monotonic()
         self.step = 0
+        if self.i2s.playing:
+            self.i2s.stop()
         self.i2s.play(self.mixer, loop=False)
 
     def button_pressed(self, x, y):
