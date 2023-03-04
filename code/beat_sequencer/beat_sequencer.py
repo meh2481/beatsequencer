@@ -2,6 +2,7 @@ import os
 import audiocore
 import time
 import audiomixer
+import math
 
 PATCH_COLORS = [
     (255, 0, 0),
@@ -11,14 +12,15 @@ PATCH_COLORS = [
 ]
 NUM_PATCHES = 4
 START_TEMPO = 160
-MIN_TEMPO = 60
-MAX_TEMPO = 240
+MIN_TEMPO = 80
+MAX_TEMPO = 320
 
 
 class BeatSequencer():
-    def __init__(self, i2s, path, buttons):
+    def __init__(self, i2s, path, buttons, accelerometer):
         self.i2s = i2s
         self.buttons = buttons
+        self.accelerometer = accelerometer
         self.audio_files = [
             [
                 f'{path}/{patch_dir}/{file}'
@@ -38,6 +40,22 @@ class BeatSequencer():
             bits_per_sample=16,
             samples_signed=True
         )
+        self.patches = [
+            [0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0]
+        ]
+
+    def init(self):
+        self.buttons.fill_neopixel((0, 0, 0))
+        self.buttons.show_board_neopixel()
+        self.buttons.set_callback(self)
+        self.last_time = time.monotonic()
+        self.step = 0
+        if self.i2s.playing:
+            self.i2s.stop()
+        self.i2s.play(self.mixer, loop=False)
 
     def update(self):
         cur_time = time.monotonic()
@@ -59,22 +77,17 @@ class BeatSequencer():
                 else:
                     self.buttons.set_neopixel(prev_step, y, (0, 0, 0))
             self.buttons.show_board_neopixel()
-
-    def init(self):
-        self.buttons.fill_neopixel((0, 0, 0))
-        self.buttons.show_board_neopixel()
-        self.patches = [
-            [0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0]
-        ]
-        self.buttons.set_callback(self)
-        self.last_time = time.monotonic()
-        self.step = 0
-        if self.i2s.playing:
-            self.i2s.stop()
-        self.i2s.play(self.mixer, loop=False)
+        # Tilt the accelerometer to change the tempo
+        accel_x, accel_y, accel_z = self.accelerometer.acceleration
+        # for our orientation on the PCB, X is inverted y, Y is x
+        temp = accel_x
+        accel_x = -accel_y
+        accel_y = temp
+        # Tilting the board right and left increases and decreases the tempo slightly
+        if math.fabs(accel_x) > 0.2:
+            self.tempo += int(accel_x * 100 / 9.8)
+            self.tempo = max(MIN_TEMPO, min(MAX_TEMPO, self.tempo))
+        time.sleep(0.005)
 
     def button_pressed(self, x, y):
         self.patches[y][x] = (self.patches[y][x] + 1) % (NUM_PATCHES + 1)

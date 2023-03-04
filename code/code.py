@@ -34,8 +34,8 @@ MODE_NAMES = [
     'Test'
 ]
 MODE_SUB_NAMES = [
-    'Play a beat',
-    f'Play a beat together with {OTHER_PLAYER_NAME}',
+    'Press the buttons to create a song',
+    f'Create a song together with {OTHER_PLAYER_NAME}',
     "Press a button to play a sound effect",
     "Tilt the board to move the snake and get the fruit!",
     'Test'
@@ -80,7 +80,7 @@ startrek = StarTrek(i2s, f'{SD_PATH}/startrek', buttons)
 test = Test(buttons, display, accelerometer)
 
 # Init beat sequencer
-beat_sequencer = BeatSequencer(i2s, f'/sequencer', buttons)
+beat_sequencer = BeatSequencer(i2s, f'/sequencer', buttons, accelerometer)
 
 # Init sync sequencer
 sync_sequencer = SyncSequencer(i2s, f'/sequencer', buttons, uart)
