@@ -123,7 +123,7 @@ while True:
         beat_sequencer.update()
     elif cur_mode == MODE_STARTUP:
         if time.monotonic() - mode_time > STARTUP_TIME:
-            cur_mode = MODE_SFX
+            cur_mode = MODE_BEAT_SEQUENCER
             display.set_main_text(f"Mode: {MODE_NAMES[cur_mode]}")
             # Init mode
             mode_init(cur_mode)
