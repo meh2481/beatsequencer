@@ -132,3 +132,4 @@ dmypy.json
 .fseventsd/
 .metadata_never_index
 boot_out.txt
+*.FCStd1

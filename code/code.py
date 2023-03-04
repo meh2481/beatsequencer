@@ -19,7 +19,9 @@ MODE_BEAT_SEQUENCER = 0
 MODE_SYNC_SEQUENCER = 1
 MODE_SFX = 2
 MODE_SNAKE = 3
-MODE_TEST = 0
+MODE_TEST = 4
+MODES = [MODE_BEAT_SEQUENCER, MODE_SYNC_SEQUENCER, MODE_SFX, MODE_SNAKE, MODE_TEST]
+MODE_NAMES = ['Beat Sequencer', 'Sync Sequencer', 'SFX', 'Snake', 'Test']
 cur_mode = MODE_SFX
 SD_PATH = '/sd'
 
@@ -69,11 +71,11 @@ startrek = StarTrek(i2s, f'{SD_PATH}/startrek', buttons)
 
 # Loop forever
 while True:
+    # Update buttons
+    buttons.update()
+
     if cur_mode == MODE_TEST:
         # while i2s.playing:
-
-        # Update buttons
-        buttons.update()
         
         # Display current accelerometer values
         x_accel, y_accel, z_accel = accelerometer.acceleration
@@ -89,3 +91,8 @@ while True:
         snake.update()
     elif cur_mode == MODE_SFX:
         startrek.update()
+    
+    # Switch modes if top left button is pressed
+    if buttons.get_button_rose(5, 4):
+        cur_mode = (cur_mode + 1) % len(MODES)
+        display.text_area.text = f"Mode: {MODE_NAMES[cur_mode]}"

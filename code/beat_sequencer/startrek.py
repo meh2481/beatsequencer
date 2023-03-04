@@ -48,7 +48,6 @@ class StarTrek():
         ]
         # Only pick the first 32 files
         self.audio_files = self.audio_files[:32]
-        self.cur_file = 0
         buttons._callback = self
         # Initialize each LED to a random color
         self.pixel_colors = [[random.choice(COLORS) for _ in range(8)] for _ in range(4)]
@@ -68,17 +67,16 @@ class StarTrek():
         self.i2s.play(self.audio, loop=False)
 
     def update(self):
-        self.buttons.update()
         time.sleep(0.005)
     
     def button_pressed(self, x, y):
-        self.cur_file = y * 8 + x
-        if self.cur_file >= len(self.audio_files):
-            self.cur_file = 0
-        self.play_sound(self.audio_files[self.cur_file])
+        cur_file = y * 8 + x
+        if cur_file >= len(self.audio_files) or cur_file < 0:
+            return
+        self.play_sound(self.audio_files[cur_file])
         # Set this location to a new random color
-        xcoord = self.cur_file % 8
-        ycoord = self.cur_file // 8
+        xcoord = cur_file % 8
+        ycoord = cur_file // 8
         colors_copy = COLORS.copy()
         colors_copy.remove(self.pixel_colors[ycoord][xcoord])
         random_color = random.choice(colors_copy)
