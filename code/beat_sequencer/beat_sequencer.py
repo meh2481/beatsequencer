@@ -46,22 +46,27 @@ class BeatSequencer():
             [0, 0, 0, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0, 0, 0, 0]
         ]
+        self.cur_volume = 1.0
 
     def init(self):
-        self.buttons.fill_neopixel((0, 0, 0))
-        self.buttons.show_board_neopixel()
         self.buttons.set_callback(self)
         self.last_time = time.monotonic()
-        self.step = 0
+        self.step = -1  # Start before the first step
         if self.i2s.playing:
             self.i2s.stop()
         self.i2s.play(self.mixer, loop=False)
+        # Set button colors
+        self.buttons.fill_neopixel((0, 0, 0))
+        for x in range(8):
+            for y in range(4):
+                if self.patches[y][x] != 0:
+                    self.buttons.set_neopixel(x, y, PATCH_COLORS[self.patches[y][x] - 1])
+        self.buttons.show_board_neopixel()
 
     def update(self):
         cur_time = time.monotonic()
         if cur_time - self.last_time > 60 / self.tempo:
-            time_skew = (cur_time - self.last_time) - 60 / self.tempo
-            self.last_time = cur_time - time_skew
+            self.last_time = cur_time
             self.step += 1
             self.step %= 8
             for y in range(4):
