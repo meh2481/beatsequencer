@@ -93,6 +93,21 @@ class BeatSequencer():
         if math.fabs(accel_x) > 0.2:
             self.tempo += int(accel_x * 100 / 9.8)
             self.tempo = max(MIN_TEMPO, min(MAX_TEMPO, self.tempo))
+        # Pressing bottom left action button resets the board/tempo
+        if self.buttons.get_button_rose(4, 4):
+            self.patches = [
+                [0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0]
+            ]
+            self.init()
+            self.tempo = START_TEMPO
+            self.buttons.set_neopixel_top(0, (255, 255, 0))
+            self.buttons.show_board_neopixel_top()
+        elif self.buttons.get_button_fell(4, 4):
+            self.buttons.set_neopixel_top(0, (0, 255, 0))
+            self.buttons.show_board_neopixel_top()
         time.sleep(0.005)
 
     def button_pressed(self, x, y):
