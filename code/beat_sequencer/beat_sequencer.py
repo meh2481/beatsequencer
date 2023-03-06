@@ -36,7 +36,7 @@ class BeatSequencer():
         self.mixer = audiomixer.Mixer(
             voice_count=4,
             sample_rate=22050,
-            channel_count=2,
+            channel_count=1,
             bits_per_sample=16,
             samples_signed=True
         )
