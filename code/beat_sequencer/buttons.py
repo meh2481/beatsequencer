@@ -6,6 +6,12 @@ from adafruit_debouncer import Debouncer
 import time
 import neopixel
 
+MIN_BRIGHTNESS = 0.0125
+START_BRIGHTNESS = 0.05
+
+NEOPIXEL_TOP_OFF = (0, 255, 0)
+NEOPIXEL_TOP_ON = (255, 255, 0)
+
 
 class Buttons:
     def __init__(self):
@@ -13,9 +19,9 @@ class Buttons:
         # The board's bottom neopixel strand
         neopixel_pin = board.GP9
         neopixel_count = 32
-        neopixel_brightness = 0.05
+        self.neopixel_brightness = START_BRIGHTNESS
         neopixel_auto_write = False
-        self.board_neopixel = neopixel.NeoPixel(neopixel_pin, neopixel_count, brightness=neopixel_brightness, auto_write=neopixel_auto_write)
+        self.board_neopixel = neopixel.NeoPixel(neopixel_pin, neopixel_count, brightness=self.neopixel_brightness, auto_write=neopixel_auto_write)
         self.board_neopixel.fill((0, 0, 0))
         self.board_neopixel.show()
 
@@ -23,8 +29,8 @@ class Buttons:
         neopixel_pin2 = board.GP25
         neopixel_count2 = 4
         self.board_neopixel_top = neopixel.NeoPixel(
-            neopixel_pin2, neopixel_count2, brightness=neopixel_brightness, auto_write=neopixel_auto_write)
-        self.board_neopixel_top.fill((0, 255, 0))
+            neopixel_pin2, neopixel_count2, brightness=self.neopixel_brightness, auto_write=neopixel_auto_write)
+        self.board_neopixel_top.fill(NEOPIXEL_TOP_OFF)
         self.board_neopixel_top.show()
 
         self.OUTPUT_PINS = []
@@ -117,6 +123,16 @@ class Buttons:
 
     def show_board_neopixel_top(self):
         self.board_neopixel_top.show()
+
+    def set_brightness(self, brightness):
+        self.neopixel_brightness = min(max(brightness, MIN_BRIGHTNESS), 1.0)
+        self.board_neopixel.brightness = self.neopixel_brightness
+        self.board_neopixel_top.brightness = self.neopixel_brightness
+        self.show_board_neopixel()
+        self.show_board_neopixel_top()
+
+    def get_brightness(self):
+        return self.neopixel_brightness
 
     def get_button_state(self, x, y):
         return self.DEBOUNCED_BUTTONS[y][x].value

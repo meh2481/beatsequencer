@@ -134,3 +134,4 @@ dmypy.json
 boot_out.txt
 *.FCStd1
 *.wav
+*.stl

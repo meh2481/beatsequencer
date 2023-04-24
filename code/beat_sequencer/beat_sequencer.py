@@ -4,6 +4,8 @@ import time
 import audiomixer
 import math
 
+from .buttons import NEOPIXEL_TOP_OFF, NEOPIXEL_TOP_ON
+
 PATCH_COLORS = [
     (255, 0, 0),
     (0, 255, 0),
@@ -106,7 +108,7 @@ class BeatSequencer():
             self.buttons.set_neopixel_top(0, (255, 255, 0))
             self.buttons.show_board_neopixel_top()
         elif self.buttons.get_button_fell(4, 4):
-            self.buttons.set_neopixel_top(0, (0, 255, 0))
+            self.buttons.set_neopixel_top(0, NEOPIXEL_TOP_OFF)
             self.buttons.show_board_neopixel_top()
         time.sleep(0.005)
 

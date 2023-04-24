@@ -1,7 +1,6 @@
 from beat_sequencer.startrek import StarTrek
 from beat_sequencer.snake import Snake
-from beat_sequencer.buttons import Buttons
-from beat_sequencer.sd_card import SDCard
+from beat_sequencer.buttons import Buttons, NEOPIXEL_TOP_OFF, NEOPIXEL_TOP_ON
 from beat_sequencer.display import Display
 from beat_sequencer.test import Test
 from beat_sequencer.beat_sequencer import BeatSequencer
@@ -41,7 +40,7 @@ MODE_SUB_NAMES = [
     'Test'
 ]
 cur_mode = MODE_STARTUP
-SD_PATH = '/sd'
+SFX_PATH = '/sfx'
 STARTUP_TIME = 0.5
 
 # The board's LED
@@ -58,9 +57,6 @@ display = Display(PLAYER_NAME)
 i2c_accel = busio.I2C(board.GP1, board.GP0, frequency=1000000)
 accelerometer = mc3416.MC3416(i2c_accel)
 
-# The SD card
-SDCard(SD_PATH)
-
 # Init i2s audio
 i2s = audiobusio.I2SOut(board.GP7, board.GP8, board.GP6)
 
@@ -71,19 +67,19 @@ uart = busio.UART(board.GP16, board.GP17, baudrate=115200)
 buttons = Buttons()
 
 # Init snake
-snake = Snake(buttons, accelerometer, i2s, f'{SD_PATH}/snake')
+snake = Snake(buttons, accelerometer, i2s, f'{SFX_PATH}/snake')
 
 # Init startrek
-startrek = StarTrek(i2s, f'{SD_PATH}/startrek', buttons)
+startrek = StarTrek(i2s, f'{SFX_PATH}/startrek', buttons)
 
 # Init test
 test = Test(buttons, display, accelerometer)
 
 # Init beat sequencer
-beat_sequencer = BeatSequencer(i2s, f'/sequencer', buttons, accelerometer)
+beat_sequencer = BeatSequencer(i2s, f'{SFX_PATH}/sequencer', buttons, accelerometer)
 
 # Init sync sequencer
-sync_sequencer = SyncSequencer(i2s, f'/sequencer', buttons, uart)
+sync_sequencer = SyncSequencer(i2s, f'{SFX_PATH}/sequencer', buttons, uart)
 
 def mode_init(mode):
     global snake, startrek, display, cur_mode, mode_time
@@ -132,8 +128,23 @@ while True:
     if buttons.get_button_rose(5, 4):
         # Init mode
         mode_init((cur_mode + 1) % len(MODES))
-        buttons.set_neopixel_top(1, (255, 255, 0))
+        buttons.set_neopixel_top(1, NEOPIXEL_TOP_ON)
         buttons.show_board_neopixel_top()
     elif buttons.get_button_fell(5, 4):
-        buttons.set_neopixel_top(1, (0, 255, 0))
+        buttons.set_neopixel_top(1, NEOPIXEL_TOP_OFF)
+        buttons.show_board_neopixel_top()
+
+    if buttons.get_button_rose(6, 4):
+        # Increase brightness with top right button
+        buttons.set_neopixel_top(2, NEOPIXEL_TOP_ON)
+        buttons.set_brightness(buttons.get_brightness() * 2)
+    elif buttons.get_button_fell(6, 4):
+        buttons.set_neopixel_top(2, NEOPIXEL_TOP_OFF)
+        buttons.show_board_neopixel_top()
+    if buttons.get_button_rose(7, 4):
+        # Decrease brightness with bottom right button
+        buttons.set_neopixel_top(3, NEOPIXEL_TOP_ON)
+        buttons.set_brightness(buttons.get_brightness() / 2)
+    elif buttons.get_button_fell(7, 4):
+        buttons.set_neopixel_top(3, NEOPIXEL_TOP_OFF)
         buttons.show_board_neopixel_top()
