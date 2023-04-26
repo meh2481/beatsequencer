@@ -6,6 +6,7 @@ import random
 from .config import STARTREK_COLORS
 
 EFFECT_DELAY = 0.11
+EFFECT_SPEEDUP = 0.85
 
 class StarTrek():
     def __init__(self, i2s, sd_path, buttons):
@@ -27,6 +28,7 @@ class StarTrek():
         ]
         self.effect_origin = (0, 0)
         self.effect_start_time = 0
+        self.cur_effect_delay = EFFECT_DELAY
         self.effect_iter = 0
 
     def init(self):
@@ -37,6 +39,7 @@ class StarTrek():
         self.buttons.show_board_neopixel()
         self.effect_origin = (0, 0)
         self.effect_start_time = 0
+        self.cur_effect_delay = EFFECT_DELAY
         self.effect_iter = 0
 
     def play_sound(self, path):
@@ -50,23 +53,24 @@ class StarTrek():
         time.sleep(0.005)
         if self.effect_start_time == 0:
             return
-        if time.monotonic() - self.effect_start_time > EFFECT_DELAY:
-            self.effect_iter += 1
+        if time.monotonic() - self.effect_start_time > self.cur_effect_delay:
             self.effect_start_time = time.monotonic()
             # Set current ring to white
             for x in range(8):
                 for y in range(4):
-                    if abs(x - self.effect_origin[0]) + abs(y - self.effect_origin[1]) == self.effect_iter:
+                    if (abs(x - self.effect_origin[0]) == self.effect_iter and abs(y - self.effect_origin[1]) <= self.effect_iter) or \
+                          (abs(y - self.effect_origin[1]) == self.effect_iter and abs(x - self.effect_origin[0]) <= self.effect_iter):
                         self.buttons.set_neopixel(x, y, (255, 255, 255))
-            # Set previous ring to previous color
-            for x in range(8):
-                for y in range(4):
-                    if abs(x - self.effect_origin[0]) + abs(y - self.effect_origin[1]) == self.effect_iter - 1:
+                    else:
                         self.buttons.set_neopixel(x, y, self.pixel_colors[y][x])
-            if self.effect_iter == 11:
+            if self.effect_iter == 8:
                 self.effect_start_time = 0
+                self.cur_effect_delay = EFFECT_DELAY
+            # Speed up effect delay as it progresses
+            self.cur_effect_delay *= EFFECT_SPEEDUP
             # Update board pixels
             self.buttons.show_board_neopixel()
+            self.effect_iter += 1
 
 
     def button_pressed(self, x, y):
@@ -90,7 +94,8 @@ class StarTrek():
         self.buttons.show_board_neopixel()
         self.effect_origin = (xcoord, ycoord)
         self.effect_start_time = time.monotonic()
-        self.effect_iter = 0
+        self.cur_effect_delay = EFFECT_DELAY
+        self.effect_iter = 1
 
     def button_released(self, x, y):
         pass
