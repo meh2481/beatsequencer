@@ -1,6 +1,6 @@
 from beat_sequencer.startrek import StarTrek
 from beat_sequencer.snake import Snake
-from beat_sequencer.buttons import Buttons, NEOPIXEL_TOP_OFF, NEOPIXEL_TOP_ON
+from beat_sequencer.buttons import Buttons
 from beat_sequencer.display import Display
 from beat_sequencer.test import Test
 from beat_sequencer.beat_sequencer import BeatSequencer
@@ -12,8 +12,10 @@ import audiobusio
 import busio
 import digitalio
 import board
-PLAYER_NAME = "Maxwell"
-PLAYER_NAMES = ["Maxwell", "Roselynn"]
+from beat_sequencer.config import PLAYER_NAME, PLAYER_NAMES, NEOPIXEL_TOP_OFF, NEOPIXEL_TOP_ON
+
+
+
 OTHER_PLAYER_NAME = PLAYER_NAMES[0] if PLAYER_NAME == PLAYER_NAMES[1] else PLAYER_NAMES[1]
 
 

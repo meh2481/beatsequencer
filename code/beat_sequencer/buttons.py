@@ -5,12 +5,10 @@ import board
 from adafruit_debouncer import Debouncer
 import time
 import neopixel
+from .config import NEOPIXEL_TOP_OFF
 
 MIN_BRIGHTNESS = 0.0125
-START_BRIGHTNESS = 0.05
-
-NEOPIXEL_TOP_OFF = (0, 255, 0)
-NEOPIXEL_TOP_ON = (255, 255, 0)
+START_BRIGHTNESS = 0.1
 
 
 class Buttons:

@@ -4,12 +4,11 @@ import math
 import time
 import audiocore
 
+from .config import SNAKE_HEAD_COLOR, SNAKE_BODY_COLOR, FRUIT_COLOR
+
 MIN_MOVE_ACCEL = 0.2
 SLEEP_TIME = 0.05
 DEFAULT_MOVE_TIME = 0.5
-SNAKE_HEAD_COLOR = (0, 255, 100)
-SNAKE_BODY_COLOR = (0, 255, 0)
-FRUIT_COLOR = (255, 0, 0)
 
 SNAKE_SOUNDS = [
     'snake_move1.wav',

@@ -3,38 +3,9 @@ import os
 import time
 import random
 
-# some color definitions
-RED = (255, 0, 0)  # 0xFF0000
-MAROON = (128, 0, 0)  # 0x800000
-ORANGE = (255, 128, 0)  # 0xFF8000
-YELLOW = (255, 255, 0)  # 0xFFFF00
-OLIVE = (128, 128, 0)  # 0x808000
-GREEN = (0, 128, 0)  # 0x008000
-AQUA = (0, 255, 255)  # 0x00FFFF
-TEAL = (0, 128, 128)  # 0x008080
-BLUE = (0, 0, 255)  # 0x0000FF
-NAVY = (0, 0, 128)  # 0x000080
-PURPLE = (128, 0, 128)  # 0x800080
-PINK = (255, 0, 128)  # 0xFF0080
+from .config import STARTREK_COLORS
 
-WHITE = (255, 255, 255)
-BLACK = (0, 0, 0)
-OFF = BLACK
-
-COLORS = [
-    RED,
-    MAROON,
-    ORANGE,
-    YELLOW,
-    OLIVE,
-    GREEN,
-    AQUA,
-    TEAL,
-    BLUE,
-    NAVY,
-    PURPLE,
-    PINK
-]
+EFFECT_DELAY = 0.2
 
 class StarTrek():
     def __init__(self, i2s, sd_path, buttons):
@@ -42,14 +13,21 @@ class StarTrek():
         self.sd_path = sd_path
         self.buttons = buttons
         self.audio = None
-        self.audio_files = [ f'{sd_path}/{file}'
+        self.audio_files = [
+            f'{sd_path}/{file}'
             for file in os.listdir(self.sd_path)
             if file.endswith('.wav')
         ]
         # Only pick the first 32 files
         self.audio_files = self.audio_files[:32]
         # Initialize each LED to a random color
-        self.pixel_colors = [[random.choice(COLORS) for _ in range(8)] for _ in range(4)]
+        self.pixel_colors = [
+            [random.choice(STARTREK_COLORS) for _ in range(8)]
+            for _ in range(4)
+        ]
+        self.effect_origin = (0, 0)
+        self.effect_start_time = 0
+        self.effect_iter = 0
 
     def init(self):
         self.buttons.set_callback(self)
@@ -57,9 +35,9 @@ class StarTrek():
             for y in range(4):
                 self.buttons.set_neopixel(x, y, self.pixel_colors[y][x])
         self.buttons.show_board_neopixel()
-        # self.effect_origin = (0, 0)
-        # self.effect_start_time = 0
-        # self.effect_iter = 0
+        self.effect_origin = (0, 0)
+        self.effect_start_time = 0
+        self.effect_iter = 0
 
     def play_sound(self, path):
         if self.i2s.playing:
@@ -70,6 +48,30 @@ class StarTrek():
 
     def update(self):
         time.sleep(0.005)
+        if self.effect_start_time == 0:
+            return
+        if time.monotonic() - self.effect_start_time > EFFECT_DELAY:
+            self.effect_iter += 1
+            self.effect_start_time = time.monotonic()
+            if self.effect_iter == 0:
+                # Set center to white
+                self.buttons.set_neopixel(self.effect_origin[0], self.effect_origin[1], (255, 255, 255))
+            else:
+                # Set current ring to white
+                for x in range(8):
+                    for y in range(4):
+                        if abs(x - self.effect_origin[0]) == self.effect_iter or abs(y - self.effect_origin[1]) == self.effect_iter:
+                            self.buttons.set_neopixel(x, y, (255, 255, 255))
+                # Set previous ring to previous color
+                for x in range(8):
+                    for y in range(4):
+                        if abs(x - self.effect_origin[0]) == self.effect_iter - 1 or abs(y - self.effect_origin[1]) == self.effect_iter - 1:
+                            self.buttons.set_neopixel(x, y, self.pixel_colors[y][x])
+                if self.effect_iter == 8:
+                    self.effect_start_time = 0
+            # Update board pixels
+            self.buttons.show_board_neopixel()
+
 
     def button_pressed(self, x, y):
         cur_file = y * 8 + x
@@ -79,12 +81,15 @@ class StarTrek():
         # Set this location to a new random color
         xcoord = cur_file % 8
         ycoord = cur_file // 8
-        colors_copy = COLORS.copy()
+        colors_copy = STARTREK_COLORS.copy()
         colors_copy.remove(self.pixel_colors[ycoord][xcoord])
         random_color = random.choice(colors_copy)
         self.pixel_colors[ycoord][xcoord] = random_color
         self.buttons.set_neopixel(xcoord, ycoord, random_color)
         self.buttons.show_board_neopixel()
+        self.effect_origin = (xcoord, ycoord)
+        self.effect_start_time = time.monotonic()
+        self.effect_iter = 0
 
     def button_released(self, x, y):
         pass
