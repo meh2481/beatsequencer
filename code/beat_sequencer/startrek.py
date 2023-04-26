@@ -5,7 +5,7 @@ import random
 
 from .config import STARTREK_COLORS
 
-EFFECT_DELAY = 0.2
+EFFECT_DELAY = 0.11
 
 class StarTrek():
     def __init__(self, i2s, sd_path, buttons):
@@ -53,22 +53,18 @@ class StarTrek():
         if time.monotonic() - self.effect_start_time > EFFECT_DELAY:
             self.effect_iter += 1
             self.effect_start_time = time.monotonic()
-            if self.effect_iter == 0:
-                # Set center to white
-                self.buttons.set_neopixel(self.effect_origin[0], self.effect_origin[1], (255, 255, 255))
-            else:
-                # Set current ring to white
-                for x in range(8):
-                    for y in range(4):
-                        if abs(x - self.effect_origin[0]) == self.effect_iter or abs(y - self.effect_origin[1]) == self.effect_iter:
-                            self.buttons.set_neopixel(x, y, (255, 255, 255))
-                # Set previous ring to previous color
-                for x in range(8):
-                    for y in range(4):
-                        if abs(x - self.effect_origin[0]) == self.effect_iter - 1 or abs(y - self.effect_origin[1]) == self.effect_iter - 1:
-                            self.buttons.set_neopixel(x, y, self.pixel_colors[y][x])
-                if self.effect_iter == 8:
-                    self.effect_start_time = 0
+            # Set current ring to white
+            for x in range(8):
+                for y in range(4):
+                    if abs(x - self.effect_origin[0]) + abs(y - self.effect_origin[1]) == self.effect_iter:
+                        self.buttons.set_neopixel(x, y, (255, 255, 255))
+            # Set previous ring to previous color
+            for x in range(8):
+                for y in range(4):
+                    if abs(x - self.effect_origin[0]) + abs(y - self.effect_origin[1]) == self.effect_iter - 1:
+                        self.buttons.set_neopixel(x, y, self.pixel_colors[y][x])
+            if self.effect_iter == 11:
+                self.effect_start_time = 0
             # Update board pixels
             self.buttons.show_board_neopixel()
 
@@ -86,6 +82,11 @@ class StarTrek():
         random_color = random.choice(colors_copy)
         self.pixel_colors[ycoord][xcoord] = random_color
         self.buttons.set_neopixel(xcoord, ycoord, random_color)
+        # If there is an effect in progress, stop it
+        if self.effect_start_time != 0:
+            for x in range(8):
+                for y in range(4):
+                    self.buttons.set_neopixel(x, y, self.pixel_colors[y][x])
         self.buttons.show_board_neopixel()
         self.effect_origin = (xcoord, ycoord)
         self.effect_start_time = time.monotonic()
