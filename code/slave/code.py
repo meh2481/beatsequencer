@@ -63,7 +63,7 @@ accelerometer = mc3416.MC3416(i2c_accel)
 i2s = audiobusio.I2SOut(board.GP7, board.GP8, board.GP6)
 
 # Init uart
-uart = busio.UART(board.GP16, board.GP17, baudrate=115200)
+uart = busio.UART(board.GP16, board.GP17, baudrate=115200, timeout=0.01)
 
 # Init buttons
 buttons = Buttons()
@@ -101,6 +101,8 @@ def mode_init(mode):
         test.init()
     elif mode == MODE_BEAT_SEQUENCER:
         beat_sequencer.init()
+    elif mode == MODE_SYNC_SEQUENCER:
+        sync_sequencer.init()
 
 
 # Set up our mode
@@ -119,9 +121,11 @@ while True:
         startrek.update()
     elif cur_mode == MODE_BEAT_SEQUENCER:
         beat_sequencer.update()
+    elif cur_mode == MODE_SYNC_SEQUENCER:
+        sync_sequencer.update()
     elif cur_mode == MODE_STARTUP:
         if time.monotonic() - mode_time > STARTUP_TIME:
-            cur_mode = MODE_BEAT_SEQUENCER
+            cur_mode = MODE_SYNC_SEQUENCER
             display.set_main_text(f"Mode: {MODE_NAMES[cur_mode]}")
             # Init mode
             mode_init(cur_mode)
