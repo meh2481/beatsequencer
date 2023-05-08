@@ -2,15 +2,11 @@ import os
 import audiocore
 import time
 import audiomixer
-import math
 
 from .config import PATCH_COLORS, NEOPIXEL_TOP_OFF, NEOPIXEL_TOP_ON
 
 
 NUM_PATCHES = 4
-# START_TEMPO = 160
-# MIN_TEMPO = 80
-# MAX_TEMPO = 560
 
 class SyncSequencer():
     def __init__(self, i2s, path, buttons, uart):
@@ -61,12 +57,6 @@ class SyncSequencer():
 
     def update(self):
         self.read_uart()
-        # print("step: ", self.step)
-        # cur_time = time.monotonic()
-        # if cur_time - self.last_time > 60 / self.tempo:
-        #     self.last_time = cur_time
-        #     self.step += 1
-        #     self.step %= 8
         # Pressing bottom left action button resets the board
         if self.buttons.get_button_rose(4, 4):
             self.patches = [
@@ -98,12 +88,6 @@ class SyncSequencer():
     def play_sound(self, sample, voice):
         self.mixer.play(sample, voice=voice)
 
-    # def write_uart(self, data):
-    #     self.uart.write(bytearray(f"{data}\r\n", "utf-8"))
-
-    # def step_uart(self):
-    #     self.write_uart(f'STEP {self.step}')
-
     def read_uart(self):
         data = self.uart.readline()
         if data is not None:
@@ -113,13 +97,12 @@ class SyncSequencer():
             command_list = data_string.split()
             if len(command_list) > 0:
                 command = command_list[0]
-                # if command == 'TEMPO':
-                #     self.tempo = float(command_list[1])
                 if command == 'STEP':
+                    prev_step = self.step
                     self.step = int(command_list[1])
-                    self.step_func()
+                    self.step_func(prev_step)
 
-    def step_func(self):
+    def step_func(self, prev_step):
         for y in range(4):
             if self.patches[y][self.step] != 0:
                 self.play_sound(self.samples[y][self.patches[y][self.step] - 1], y)
@@ -127,10 +110,10 @@ class SyncSequencer():
         for y in range(4):
             self.buttons.set_neopixel(self.step, y, (255, 255, 255))
         # Turn off previous column
-        prev_step = (self.step - 1) % 8
-        for y in range(4):
-            if self.patches[y][prev_step] != 0:
-                self.buttons.set_neopixel(prev_step, y, PATCH_COLORS[self.patches[y][prev_step] - 1])
-            else:
-                self.buttons.set_neopixel(prev_step, y, (0, 0, 0))
-        self.buttons.show_board_neopixel()
+        if prev_step > -1 and prev_step < 8:
+            for y in range(4):
+                if self.patches[y][prev_step] != 0:
+                    self.buttons.set_neopixel(prev_step, y, PATCH_COLORS[self.patches[y][prev_step] - 1])
+                else:
+                    self.buttons.set_neopixel(prev_step, y, (0, 0, 0))
+            self.buttons.show_board_neopixel()

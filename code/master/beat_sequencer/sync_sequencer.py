@@ -91,7 +91,6 @@ class SyncSequencer():
         if math.fabs(accel_x) > 0.2:
             self.tempo += int(accel_x * 100 / 9.8)
             self.tempo = max(MIN_TEMPO, min(MAX_TEMPO, self.tempo))
-            # self.write_uart(f'TEMPO {self.tempo}')
         # Pressing bottom left action button resets the board/tempo
         if self.buttons.get_button_rose(4, 4):
             self.patches = [
@@ -102,7 +101,6 @@ class SyncSequencer():
             ]
             self.init()
             self.tempo = START_TEMPO
-            # self.write_uart(f'TEMPO {self.tempo}')
             self.buttons.set_neopixel_top(0, NEOPIXEL_TOP_ON)
             self.buttons.show_board_neopixel_top()
         elif self.buttons.get_button_fell(4, 4):
