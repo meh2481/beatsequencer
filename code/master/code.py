@@ -26,7 +26,7 @@ MODE_SFX = 2
 MODE_SNAKE = 3
 MODE_TEST = 4
 MODE_STARTUP = 5
-MODES = [MODE_BEAT_SEQUENCER, MODE_SYNC_SEQUENCER, MODE_SFX, MODE_SNAKE, MODE_TEST]
+MODES = [MODE_BEAT_SEQUENCER, MODE_SYNC_SEQUENCER, MODE_SFX, MODE_SNAKE]#, MODE_TEST]
 MODE_NAMES = [
     'Beat Sequencer',
     'Sync Sequencer',
@@ -125,7 +125,7 @@ while True:
         sync_sequencer.update()
     elif cur_mode == MODE_STARTUP:
         if time.monotonic() - mode_time > STARTUP_TIME:
-            cur_mode = MODE_SYNC_SEQUENCER
+            cur_mode = MODE_BEAT_SEQUENCER
             display.set_main_text(f"Mode: {MODE_NAMES[cur_mode]}")
             # Init mode
             mode_init(cur_mode)
